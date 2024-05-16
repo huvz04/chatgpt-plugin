@@ -49,6 +49,11 @@ export class ChatgptManagement extends plugin {
           permission: 'master'
         },
         {
+          reg: '^#chatgpt(删除|解绑)(token|Token)?',
+          fnc: 'delAccessToken',
+          permission: 'master'
+        },
+        {
           reg: '^#chatgpt(设置|绑定)(Poe|POE)(token|Token)',
           fnc: 'setPoeCookie',
           permission: 'master'
@@ -121,11 +126,6 @@ export class ChatgptManagement extends plugin {
         {
           reg: '^#chatgpt切换azure$',
           fnc: 'useAzureBasedSolution',
-          permission: 'master'
-        },
-        {
-          reg: '^#chatgpt切换(Bard|bard)$',
-          fnc: 'useBardBasedSolution',
           permission: 'master'
         },
         {
@@ -710,6 +710,11 @@ azure语音：Azure 语音是微软 Azure 平台提供的一项语音服务，�
     return false
   }
 
+  async delAccessToken () {
+    await redis.del('CHATGPT:TOKEN')
+    await this.reply('删除成功', true)
+  }
+
   async setPoeCookie () {
     this.setContext('savePoeToken')
     await this.reply('请发送Poe Cookie', true)
@@ -965,16 +970,6 @@ azure语音：Azure 语音是微软 Azure 平台提供的一项语音服务，�
       await this.reply('已切换到基于Azure的解决方案')
     } else {
       await this.reply('当前已经是Azure模式了')
-    }
-  }
-
-  async useBardBasedSolution () {
-    let use = await redis.get('CHATGPT:USE')
-    if (use !== 'bard') {
-      await redis.set('CHATGPT:USE', 'bard')
-      await this.reply('已切换到基于Bard的解决方案')
-    } else {
-      await this.reply('当前已经是Bard模式了')
     }
   }
 
